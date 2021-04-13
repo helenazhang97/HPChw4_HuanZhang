@@ -1,0 +1,13 @@
+2.(a) The output of checking if after N loops the processors have properly added their distribution each time. Please note that my Rank 0/4 sums up first but print its share only after it receives the result from the last processor, so it print out result later(although it sent its message first). This version of code is not submitted, just built for checking.
+
+Rank 1/4 running on log-3.nyu.cluster, receive 0, add 1, send 1.
+Rank 2/4 running on log-3.nyu.cluster, receive 1, add 2, send 3.
+Rank 3/4 running on log-3.nyu.cluster, receive 3, add 3, send 6.
+Rank 0/4 running on log-3.nyu.cluster, add 0, send 0
+Rank 3/4 running on log-3.nyu.cluster, receive 9, add 3, send 12.
+Rank 1/4 running on log-3.nyu.cluster, receive 6, add 1, send 7.
+Rank 2/4 running on log-3.nyu.cluster, receive 7, add 2, send 9.
+Rank 0/4 running on log-3.nyu.cluster, add 0, send 6
+after 2 loop/loops N= 12.
+
+
