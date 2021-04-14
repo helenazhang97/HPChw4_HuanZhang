@@ -1,3 +1,24 @@
+1.I ran 4 processes on 2 nodes, each MPI process on a CPU core.
+When I communicate between two nodes, the result is as follows:
+  1 proc0= 0, proc1= 3 Rank 0/4 running on cs059.nyu.cluster.
+  2 proc0= 0, proc1= 3 Rank 1/4 running on cs059.nyu.cluster.
+  3 proc0= 0, proc1= 3 Rank 2/4 running on cs060.nyu.cluster.
+  4 proc0= 0, proc1= 3 Rank 3/4 running on cs060.nyu.cluster.
+  5 pingpong latency: 5.730687e-03 ms
+  6 pingpong bandwidth: 1.287487e+01 GB/s
+
+When I communicate between two cores on a single node, the result is as follows:
+  1 proc0= 0, proc1= 1 Rank 2/4 running on cs005.nyu.cluster.
+  2 proc0= 0, proc1= 1 Rank 3/4 running on cs005.nyu.cluster.
+  3 proc0= 0, proc1= 1 Rank 0/4 running on cs004.nyu.cluster.
+  4 proc0= 0, proc1= 1 Rank 1/4 running on cs004.nyu.cluster.
+  5 pingpong latency: 3.464010e-04 ms
+  6 pingpong bandwidth: 2.471767e+01 GB/s
+
+We could see that the communication between codes through network requires more time. It also shows that at least for the specific case for Greene, when sending (as often) small messages, then what matters is the latency, not the bandwith.
+
+
+
 2.(a) The output of checking if after N loops the processors have properly added their distribution each time. Please note that my Rank 0/4 sums up first but print its share only after it receives the result from the last processor, so it print out result later(although it sent its message first). This version of code is not submitted, just built for checking.
 
 Rank 1/4 running on log-3.nyu.cluster, receive 0, add 1, send 1.
@@ -9,5 +30,39 @@ Rank 1/4 running on log-3.nyu.cluster, receive 6, add 1, send 7.
 Rank 2/4 running on log-3.nyu.cluster, receive 7, add 2, send 9.
 Rank 0/4 running on log-3.nyu.cluster, add 0, send 6
 after 2 loop/loops N= 12.
+
+(b) I let N=100 and use 4 MPI processes. I first run them on 4 different nodes
+Rank 1/4 running on cs113.nyu.cluster
+Rank 3/4 running on cs201.nyu.cluster
+Rank 0/4 running on cs112.nyu.cluster
+Rank 2/4 running on cs200.nyu.cluster
+After 100 loop/loops N= 600, latency:4.500549e-02 ms
+
+Then I run them on 1 node with 4 different cores
+Rank 3/4 running on cs004.nyu.cluster
+Rank 2/4 running on cs004.nyu.cluster
+Rank 1/4 running on cs004.nyu.cluster
+Rank 0/4 running on cs004.nyu.cluster
+After 100 loop/loops N= 600, latency:3.193725e-04 ms
+
+We can see that when the messages are not actually set through a network, the latency is smaller.
+
+(c) please refer to int_ring.c 
+(d) 
+If I run 4 MPI prcesses on one node (4 different cores)
+Rank 3/4 running on cs016.nyu.cluster
+Rank 0/4 running on cs016.nyu.cluster
+Rank 1/4 running on cs016.nyu.cluster
+Rank 2/4 running on cs016.nyu.cluster
+After 100 loop/loops N= 3, bandwidth:1.101590e+01 GB/s
+
+If I run 4 MPI processes on 4 different nodes 
+Rank 0/4 running on cs227.nyu.cluster
+Rank 2/4 running on cs229.nyu.cluster
+Rank 3/4 running on cs230.nyu.cluster
+Rank 1/4 running on cs228.nyu.cluster
+After 100 loop/loops N= 3, bandwidth:5.321670e+00 GB/s
+
+We can see the bandwidth is reduced by approximately a half when using networks.
 
 
