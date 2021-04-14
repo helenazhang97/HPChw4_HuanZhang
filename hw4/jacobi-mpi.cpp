@@ -7,15 +7,17 @@
 #include <math.h>
 #include <mpi.h>
 #include <string.h>
-
+#include <cstdlib>
 /* compuate global residual, assuming ghost values are updated */
 double compute_residual(double *lu, int lN, double invhsq){
-  int i;
+  int i,j;
   double tmp, gres = 0.0, lres = 0.0;
 
   for (i = 1; i <= lN; i++){
-    tmp = ((2.0*lu[i] - lu[i-1] - lu[i+1]) * invhsq - 1);
-    lres += tmp * tmp;
+	for(j=1;j<=lN;j++){
+    	tmp = ((4.0*lu[i+(lN+2)*j] - lu[i-1+(lN+2)*j] - lu[i+1+(lN+2)*j] - lu[i+(lN+2)*(j-1)] - lu[i+(lN+2)*(j+1)]) * invhsq - 1);
+    	lres += tmp * tmp;
+	}
   }
   /* use allreduce for convenience; a reduce would also be sufficient */
   MPI_Allreduce(&lres, &gres, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
@@ -91,8 +93,10 @@ int main(int argc, char * argv[]){
 
 
     /* communicate ghost values */
-    if ((mpirank+1)% dimp!=0) {
-	  printf("dimp=%d, mpirank=%d",dimp,mpirank);
+
+	
+	if ((mpirank+1)% dimp!=0) {
+	 // printf("dimp=%d, mpirank=%d",dimp,mpirank);
       /* If not the most right process, send/recv bdry values to the right */
 	  for (long j=0;j<lN;j++){
 	  	rsendbuff[j]=lunew[lN+(lN+2)*(j+1)];
@@ -103,8 +107,9 @@ int main(int argc, char * argv[]){
 	  	lunew[lN+1+(lN+2)*(j+1)]=rrecvbuff[j];
 	  }
     }
-    if ((mpirank)% dimp!=0) {
-      /* If not the first process, send/recv bdry values to the left */
+
+	if ((mpirank)% dimp!=0) {
+      // If not the first process, send/recv bdry values to the left 
    	  for (long j=0;j<lN;j++){
 	  	lsendbuff[j]=lunew[1+(lN+2)*(j+1)];
 	  }
@@ -116,24 +121,24 @@ int main(int argc, char * argv[]){
 	}
 
     if (mpirank<p-dimp) {
-      /* If not the upper process, send/recv bdry values to the above */
+      // If not the upper process, send/recv bdry values to the above 
    	  for (long j=0;j<lN;j++){
 	  	usendbuff[j]=lunew[j+1+(lN+2)*(lN)];
 	  }
-	  MPI_Send(usendbuff, lN, MPI_DOUBLE, mpirank+4, 126, MPI_COMM_WORLD);
-      MPI_Recv(urecvbuff, lN, MPI_DOUBLE, mpirank+4, 125, MPI_COMM_WORLD, &status2);
+	  MPI_Send(usendbuff, lN, MPI_DOUBLE, mpirank+dimp, 126, MPI_COMM_WORLD);
+      MPI_Recv(urecvbuff, lN, MPI_DOUBLE, mpirank+dimp, 125, MPI_COMM_WORLD, &status2);
 	  for (long j=0;j<lN;j++){
 	  	lunew[j+1+(lN+2)*(lN+1)]=urecvbuff[j];
 	  }
 	}
 
     if (mpirank>=dimp) {
-      /* If not the lower process, send/recv bdry values to the below */
+      // If not the lower process, send/recv bdry values to the below 
    	  for (long j=0;j<lN;j++){
 	  	bsendbuff[j]=lunew[j+1+(lN+2)*1];
 	  }
-	  MPI_Send(bsendbuff, lN, MPI_DOUBLE, mpirank-4, 125, MPI_COMM_WORLD);
-      MPI_Recv(brecvbuff, lN, MPI_DOUBLE, mpirank-4, 126, MPI_COMM_WORLD, &status3);
+	  MPI_Send(bsendbuff, lN, MPI_DOUBLE, mpirank-dimp, 125, MPI_COMM_WORLD);
+      MPI_Recv(brecvbuff, lN, MPI_DOUBLE, mpirank-dimp, 126, MPI_COMM_WORLD, &status3);
 	  for (long j=0;j<lN;j++){
 	  	lunew[j+1+(lN+2)*0]=brecvbuff[j];
 	  }
