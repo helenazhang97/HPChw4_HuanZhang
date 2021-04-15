@@ -64,5 +64,12 @@ Rank 1/4 running on cs228.nyu.cluster
 After 100 loop/loops N= 3, bandwidth:5.321670e+00 GB/s
 
 We can see the bandwidth is reduced by approximately a half when using networks.
+3. I picked(b) Jacobi iteration in 2D(I only did MPI parallel implementation, no OpenMP yet)
+When N=256(the points in each dimension) and tolorance =1e-6, using 2 x 2 MPI processes on 1 node on Greene,Time elapsed is 0.259291 seconds.
+When N=256(the points in each dimension) and tolorance =1e-6, using 4 x 4 MPI processes on 1 node on Greene, Time elapsed is 0.030859 seconds.
+When N=256(the points in each dimension) and tolorance =1e-6, using 8 x 8 MPI processes equally distributed on 2 nodes on Greene,Time elapsed is 0.014057 seconds.
+When N=256(the points in each dimension) and tolorance =1e-6, using 8 x 8 MPI processes equally distributed on 4 nodes on Greene,time elapsed is 0.010732 seconds.
 
+We can see when we increase the number of MPI processes by a factor of 4 within 1 node, the time is reduced by more than a factor of 4. But when we are using more than one node, the communication between nodes add to the time consumed because of latency. Moreover, as the 3rd and 4th implementation shows, even though there is possibly more time spent on communication between more nodes(4 outnumber 2), more computation resource still make the 4th implementation faster (there are 24 nodes in each node so hyperthreading is used in 3rd case.)
 
+4. The project. We are planning to computes 1d, 2d and possibly 3d FFTs in parallel(Openmp) in each dimension of the FFT grid, interleaved with MPI communication to move data between processors. I will be cooperating with Cai Maitland-Davies. 

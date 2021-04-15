@@ -12,4 +12,4 @@ module purge
 module load  amber/openmpi/intel/20.06 
 
 # mpiexec ./pingpong 0 1
-mpiexec ./a.out 
+mpiexec ./a.out 256 40000 
